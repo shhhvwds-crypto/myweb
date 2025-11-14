@@ -229,3 +229,59 @@ footer {
         display: block;
     }
 }
+/* 强制隐藏图片并调整主体高度 - 高优先级 */
+@media (max-width: 768px) {
+    /* 强制隐藏所有装饰图片 */
+    .img-container,
+    .img2-container,
+    .img,
+    .img2 {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+    
+    /* 强制增大主体容器 */
+    .container {
+        min-height: 95vh !important;
+        height: auto !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* 强制增大卡片容器 */
+    .card-container {
+        min-height: 85vh !important;
+        height: auto !important;
+        margin: 10px 0 !important;
+        padding: 20px 15px !important;
+    }
+    
+    /* 强制增大消息区域 */
+    .card-content {
+        min-height: 50vh !important;
+        max-height: 50vh !important;
+        height: 50vh !important;
+    }
+    
+    /* 调整body本身 */
+    body {
+        min-height: 100vh !important;
+        padding: 5px !important;
+        margin: 0 !important;
+    }
+}
+
+/* 针对小屏幕手机的进一步优化 */
+@media (max-width: 480px) {
+    .card-container {
+        min-height: 90vh !important;
+    }
+    
+    .card-content {
+        min-height: 55vh !important;
+        max-height: 55vh !important;
+        height: 55vh !important;
+    }
+}
