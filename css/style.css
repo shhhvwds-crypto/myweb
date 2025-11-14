@@ -583,11 +583,14 @@
         @media (max-width: 768px) {
             body {
                 padding: 10px 5px;
+                min-height: 100vh;
+                justify-content: flex-start;
             }
             
             .container {
                 width: 100%;
                 max-width: 100%;
+                min-height: 95vh;
             }
             
             h1 {
@@ -605,6 +608,8 @@
                 border-radius: 15px;
                 width: 100%;
                 margin-bottom: 20px;
+                min-height: 75vh;
+                flex: 1;
             }
             
             .card-head {
@@ -626,10 +631,11 @@
             }
             
             .card-content {
-                min-height: 350px;
-                max-height: 350px;
+                min-height: 45vh;
+                max-height: 45vh;
                 padding: 15px;
                 margin-bottom: 20px;
+                flex: 1;
             }
             
             .message {
@@ -671,9 +677,30 @@
             }
             
             textarea {
-                height: 140px;
+                height: 120px;
+            }
+            
+            /* 在移动端隐藏装饰图片 */
+            .img-container, .img2-container {
+                display: none;
+            }
+            
+            /* 在移动端隐藏装饰心形 */
+            .decoration, .decoration2 {
+                display: none;
+            }
+            
+            .button, .button-share {
+                padding: 14px 25px;
+                font-size: 1.1rem;
+            }
+            
+            footer {
+                font-size: 1rem;
+                margin-top: 15px;
             }
         }
+
         @media (max-width: 480px) {
             body {
                 padding: 8px 3px;
@@ -689,6 +716,7 @@
             
             .card-container {
                 padding: 15px 12px;
+                min-height: 80vh;
             }
             
             .card-title {
@@ -696,8 +724,8 @@
             }
             
             .card-content {
-                min-height: 300px;
-                max-height: 300px;
+                min-height: 50vh;
+                max-height: 50vh;
                 padding: 12px;
             }
             
@@ -716,6 +744,10 @@
             input, textarea {
                 padding: 12px 14px;
                 font-size: 1rem;
+            }
+            
+            textarea {
+                height: 100px;
             }
             
             .button, .button-share {
