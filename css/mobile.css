@@ -1,0 +1,33 @@
+.img-container,
+.img2-container,
+.img,
+.img2 {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    position: static !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+.container {
+    min-height: 95vh !important;
+    width: 100% !important;
+}
+
+.card-container {
+    min-height: 85vh !important;
+    width: 100% !important;
+    margin: 10px 0 !important;
+}
+
+.card-content {
+    min-height: 50vh !important;
+    max-height: 50vh !important;
+}
+
+body {
+    padding: 5px !important;
+    overflow-x: hidden !important;
+}
