@@ -35,6 +35,31 @@ document.addEventListener('DOMContentLoaded',function(){
                     copyWebsiteUrl();
                 });
 
+                function hideMobileImages() {
+                    if (window.innerWidth <= 768) {
+                        const imgContainers = document.querySelectorAll('.img-container, .img2-container');
+                        const images = document.querySelectorAll('.img, .img2');
+                        
+                        imgContainers.forEach(container => {
+                            container.style.display = 'none';
+                            container.style.visibility = 'hidden';
+                            container.style.opacity = '0';
+                        });
+                        
+                        images.forEach(img => {
+                            img.style.display = 'none';
+                            img.style.visibility = 'hidden';
+                            img.style.opacity = '0';
+                        });
+                    }
+                }
+
+                document.addEventListener('DOMContentLoaded', function() {
+                    hideMobileImages();
+                    
+                    window.addEventListener('resize', hideMobileImages);
+                });
+
                 function copyWebsiteUrl() {
                     const websiteUrl = window.location.href;
                     
