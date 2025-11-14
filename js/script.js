@@ -31,6 +31,78 @@ document.addEventListener('DOMContentLoaded',function(){
                     document.getElementById('sound8')
                 ];
 
+                shareButton.addEventListener('click', function() {
+                    copyWebsiteUrl();
+                });
+
+                function copyWebsiteUrl() {
+                    const websiteUrl = window.location.href;
+                    
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(websiteUrl)
+                            .then(() => {
+                                showShareSuccessMessage();
+                            })
+                            .catch(err => {
+                                console.error('复制失败:', err);
+                                fallbackCopyText(websiteUrl);
+                            });
+                    } else {
+                        fallbackCopyText(websiteUrl);
+                    }
+                }
+
+                function fallbackCopyText(text) {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = text;
+                        textArea.style.position = 'fixed';
+                        textArea.style.left = '-999999px';
+                        textArea.style.top = '-999999px';
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+                        
+                        try {
+                            const successful = document.execCommand('copy');
+                            if (successful) {
+                                showShareSuccessMessage();
+                            } else {
+                                alert('复制失败，请手动复制网址：' + text);
+                            }
+                        } catch (err) {
+                            console.error('复制失败:', err);
+                            alert('复制失败，请手动复制网址：' + text);
+                        }
+                        
+                        document.body.removeChild(textArea);
+                    }
+
+                    function showShareSuccessMessage() {
+                        const shareSuccessMsg = document.createElement('div');
+                        shareSuccessMsg.textContent = '已复制网站链接！';
+                        shareSuccessMsg.style.position = 'fixed';
+                        shareSuccessMsg.style.top = '20px';
+                        shareSuccessMsg.style.left = '50%';
+                        shareSuccessMsg.style.transform = 'translateX(-50%)';
+                        shareSuccessMsg.style.backgroundColor = '#ff6b6b';
+                        shareSuccessMsg.style.color = 'white';
+                        shareSuccessMsg.style.padding = '10px 20px';
+                        shareSuccessMsg.style.borderRadius = '20px';
+                        shareSuccessMsg.style.zIndex = '1001';
+                        shareSuccessMsg.style.boxShadow = '0 3px 10px rgba(0,0,0,0.2)';
+                        shareSuccessMsg.style.animation = 'fadeIn 0.5s, fadeOut 0.5s 2s forwards';
+                        shareSuccessMsg.style.fontSize = '14px';
+                        
+                        document.body.appendChild(shareSuccessMsg);
+                        
+                        setTimeout(() => {
+                            if (shareSuccessMsg.parentNode) {
+                                shareSuccessMsg.parentNode.removeChild(shareSuccessMsg);
+                            }
+                        }, 2500);
+                    }
+
+
                 function playRandomEffect() {
                     const randomImageIndex = Math.floor(Math.random() * imagePaths.length);
                     const selectedImagePath = imagePaths[randomImageIndex];
