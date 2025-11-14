@@ -190,7 +190,6 @@
              .card-container{
                 width:100%;
                 background-color: white;
-                display: flex;
                 border-radius: 20px;
                 padding:30px;
                 margin-bottom:30px;
@@ -273,7 +272,6 @@
                 top:5%;
                 left:5%;
                 pointer-events: none;
-                display: flex;
              }
              .img2-container{
                 position:absolute;
@@ -282,7 +280,6 @@
                 top:5%;
                 left:5%;
                 pointer-events: none;
-                display: flex;
              }
              .img{
                 position: absolute;
@@ -430,96 +427,4 @@
                 opacity: 0;
             }
         }
-        @media (max-width: 768px) {
-    body {
-        padding: 10px;
-    }
-    
-    h1 {
-        font-size: 1.8rem;
-    }
-    
-    .subtitle {
-        font-size: 1.2rem;
-    }
-    
-    .card-container {
-        padding: 20px;
-        border-radius: 15px;
-    }
-    
-    .card-head {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .card-title {
-        font-size: 1.3rem;
-        margin-bottom: 10px;
-    }
-    
-    .participant {
-        align-self: flex-end;
-        margin-top: 10px;
-    }
-    
-    .card-content {
-        min-height: 300px;
-        max-height: 300px;
-        padding: 15px;
-    }
-    
-    .message-head {
-        flex-direction: column;
-    }
-    
-    .sender {
-        margin-bottom: 5px;
-    }
-    
-    .timestamp {
-        font-size: 0.8rem;
-    }
-    
-    .input-row {
-        flex-direction: column;
-    }
-    
-    input {
-        margin-bottom: 10px;
-    }
-    
-    .img, .img2 {
-        width: 100px;
-    }
-    
-    .img:nth-child(1) {
-        top: 60%;
-        left: 75%;
-    }
-    
-    .img:nth-child(2) {
-        top: 5%;
-        left: 70%;
-    }
-    
-    .img2:nth-child(1) {
-        top: 75%;
-        left: 5%;
-    }
-    
-    .img2:nth-child(2) {
-        top: 20%;
-        left: 5%;
-    }
-    
-    .decoration-heart, .decoration-heart2 {
-        font-size: 18px;
-    }
-    
-    footer {
-        font-size: 0.9rem;
-    }
-}
-
     
