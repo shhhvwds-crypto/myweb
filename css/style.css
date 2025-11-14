@@ -190,6 +190,7 @@
              .card-container{
                 width:100%;
                 background-color: white;
+                display: flex;
                 border-radius: 20px;
                 padding:30px;
                 margin-bottom:30px;
@@ -272,6 +273,7 @@
                 top:5%;
                 left:5%;
                 pointer-events: none;
+                display: flex;
              }
              .img2-container{
                 position:absolute;
@@ -280,6 +282,7 @@
                 top:5%;
                 left:5%;
                 pointer-events: none;
+                display: flex;
              }
              .img{
                 position: absolute;

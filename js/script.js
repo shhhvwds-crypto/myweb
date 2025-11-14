@@ -1,57 +1,4 @@
-
-function applyMobileStyles() {
-    const isMobile = window.innerWidth <= 768;
-    
-    if (isMobile) {
-        console.log('检测到移动端，应用强制样式');
-        
-
-        const elementsToHide = [
-            '.img-container',
-            '.img2-container', 
-            '.img',
-            '.img2'
-        ];
-        
-        elementsToHide.forEach(selector => {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(el => {
-                el.style.cssText = `
-                    display: none !important;
-                    visibility: hidden !important;
-                    opacity: 0 !important;
-                    width: 0 !important;
-                    height: 0 !important;
-                    position: fixed !important;
-                    left: -9999px !important;
-                    top: -9999px !important;
-                    pointer-events: none !important;
-                    z-index: -9999 !important;
-                `;
-            });
-        });
-        
-
-        const container = document.querySelector('.container');
-        const cardContainer = document.querySelector('.card-container');
-        const cardContent = document.querySelector('.card-content');
-        
-        if (container) container.style.minHeight = '95vh';
-        if (cardContainer) cardContainer.style.minHeight = '80vh';
-        if (cardContent) {
-            cardContent.style.minHeight = '45vh';
-            cardContent.style.maxHeight = '45vh';
-            cardContent.style.height = '45vh';
-        }
-    }
-}
-
-
-document.addEventListener('DOMContentLoaded', function() {
-    applyMobileStyles();
-    window.addEventListener('resize', applyMobileStyles);
-    
-    document.addEventListener('DOMContentLoaded',function(){
+document.addEventListener('DOMContentLoaded',function(){
                 const messageContainer = document.getElementById('message-container');
                 const senderNameInput = document.getElementById('sender-name');
                 const messageTextInput = document.getElementById('message-text');
@@ -330,4 +277,3 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             preloadImages();
         });
-});
