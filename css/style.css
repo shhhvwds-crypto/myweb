@@ -428,23 +428,155 @@
             }
         }
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .card-container {
-                padding: 20px;
-            }
-            
-            .input-row {
-                flex-direction: column;
-            }
-            
-            input {
-                margin-bottom: 10px;
-            }
-            
-            .subtitle {
-                font-size: 1.2rem;
-            }
+    body {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    .subtitle {
+        font-size: 1.2rem;
+    }
+    
+    .card-container {
+        padding: 20px;
+        border-radius: 15px;
+    }
+    
+    .card-head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .card-title {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+    }
+    
+    .participant {
+        align-self: flex-end;
+        margin-top: 10px;
+    }
+    
+    .card-content {
+        min-height: 300px;
+        max-height: 300px;
+        padding: 15px;
+    }
+    
+    .message-head {
+        flex-direction: column;
+    }
+    
+    .sender {
+        margin-bottom: 5px;
+    }
+    
+    .timestamp {
+        font-size: 0.8rem;
+    }
+    
+    .input-row {
+        flex-direction: column;
+    }
+    
+    input {
+        margin-bottom: 10px;
+    }
+    
+    .img, .img2 {
+        width: 100px;
+    }
+    
+    .img:nth-child(1) {
+        top: 60%;
+        left: 75%;
+    }
+    
+    .img:nth-child(2) {
+        top: 5%;
+        left: 70%;
+    }
+    
+    .img2:nth-child(1) {
+        top: 75%;
+        left: 5%;
+    }
+    
+    .img2:nth-child(2) {
+        top: 20%;
+        left: 5%;
+    }
+    
+    .decoration-heart, .decoration-heart2 {
+        font-size: 18px;
+    }
+    
+    footer {
+        font-size: 0.9rem;
+    }
+}
+
+    @media (max-width: 480px) {
+        h1 {
+            font-size: 1.5rem;
         }
+        
+        .subtitle {
+            font-size: 1rem;
+        }
+        
+        .card-container {
+            padding: 15px;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+        }
+        
+        .card-content {
+            min-height: 250px;
+            max-height: 250px;
+            padding: 10px;
+        }
+        
+        .message {
+            padding: 10px;
+        }
+        
+        .img, .img2 {
+            width: 80px;
+        }
+        
+        .img:nth-child(1) {
+            top: 65%;
+            left: 70%;
+        }
+        
+        .img:nth-child(2) {
+            top: 3%;
+            left: 65%;
+        }
+        
+        .img2:nth-child(1) {
+            top: 70%;
+            left: 3%;
+        }
+        
+        .img2:nth-child(2) {
+            top: 15%;
+            left: 3%;
+        }
+        
+        input, textarea {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+        
+        .button, .button-share {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+    }
