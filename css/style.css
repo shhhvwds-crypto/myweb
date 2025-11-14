@@ -580,3 +580,146 @@
             font-size: 0.9rem;
         }
     }
+        @media (max-width: 768px) {
+            body {
+                padding: 10px 5px;
+            }
+            
+            .container {
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+                margin-bottom: 5px;
+            }
+            
+            .subtitle {
+                font-size: 1.4rem;
+                margin-bottom: 15px;
+            }
+            
+            .card-container {
+                padding: 20px 15px;
+                border-radius: 15px;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .card-head {
+                flex-direction: column;
+                align-items: flex-start;
+                margin-bottom: 20px;
+            }
+            
+            .card-title {
+                font-size: 1.5rem;
+                margin-bottom: 10px;
+            }
+            
+            .participant {
+                align-self: flex-end;
+                margin-top: 10px;
+                font-size: 1rem;
+                padding: 8px 16px;
+            }
+            
+            .card-content {
+                min-height: 350px;
+                max-height: 350px;
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .message {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+            
+            .message-head {
+                flex-direction: column;
+                margin-bottom: 8px;
+            }
+            
+            .sender {
+                font-size: 1.1rem;
+                margin-bottom: 5px;
+            }
+            
+            .message-content {
+                font-size: 1.05rem;
+                line-height: 1.6;
+            }
+            
+            .timestamp {
+                font-size: 0.95rem;
+            }
+            
+            .input-row {
+                flex-direction: column;
+                margin-bottom: 12px;
+            }
+            
+            input {
+                margin-bottom: 10px;
+            }
+            
+            input, textarea {
+                padding: 14px 16px;
+                font-size: 1.05rem;
+            }
+            
+            textarea {
+                height: 140px;
+            }
+        }
+        @media (max-width: 480px) {
+            body {
+                padding: 8px 3px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .card-container {
+                padding: 15px 12px;
+            }
+            
+            .card-title {
+                font-size: 1.3rem;
+            }
+            
+            .card-content {
+                min-height: 300px;
+                max-height: 300px;
+                padding: 12px;
+            }
+            
+            .message {
+                padding: 10px;
+            }
+            
+            .sender {
+                font-size: 1rem;
+            }
+            
+            .message-content {
+                font-size: 1rem;
+            }
+            
+            input, textarea {
+                padding: 12px 14px;
+                font-size: 1rem;
+            }
+            
+            .button, .button-share {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+        }
