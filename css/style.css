@@ -429,72 +429,80 @@
         }
         @media screen and (max-width: 768px) {
 
-    /* 让人物图片更透明、不遮挡内容 */
-    .img,
-    .img2 {
-        width: 80px !important;       /* 再小一点，避免覆盖内容 */
-        opacity: 0.35 !important;     /* 更透明，不会挡住文字 */
-        z-index: 2 !important;
-        pointer-events: none !important; /* 禁止点击，避免干扰 */
-    }
+         body {
+            padding: 10px;
+            background-color: #fff5ee;
+         }
 
-    /* 右上角人物 */
-    .img:nth-child(2) {
-        top: 2% !important;
-        right: -10px !important;
-        left: auto !important;
-    }
+         h1 {
+            font-size: 2rem;
+         }
 
-    /* 右下角人物 */
-    .img:nth-child(1) {
-        bottom: 5% !important;
-        right: -10px !important;
-        left: auto !important;
-        top: auto !important;
-    }
+         .subtitle {
+            font-size: 1.2rem;
+         }
 
-    /* 左下角人物 */
-    .img2:nth-child(1) {
-        bottom: 5% !important;
-        left: -10px !important;
-        top: auto !important;
-    }
+         /* 让主体更高更大 */
+         .card-container {
+            padding: 20px;
+            width: 100%;
+            max-width: 100%;
+         }
 
-    /* 左上角人物 */
-    .img2:nth-child(2) {
-        top: 2% !important;
-        left: -10px !important;
-    }
+         .card-title {
+            font-size: 1.3rem;
+         }
 
-    /* 心形也更弱，不影响阅读 */
-    .decoration,
-    .decoration2 {
-        opacity: 0.25 !important;
-    }
-}
+         .participant {
+            font-size: 0.9rem;
+            padding: 5px 12px;
+         }
 
-    /* 主内容区域放大 */
-    .card-container {
-        width: 100%;
-        padding: 20px;
-    }
+         /* 内容区变大 */
+         .card-content {
+            min-height: 500px;
+            max-height: none;
+            font-size: 1.1rem;
+         }
 
-    /* 字体适当放大 */
-    h1 {
-        font-size: 2rem;
-    }
+         .message-head {
+            font-size: 1.1rem;
+         }
 
-    .subtitle {
-        font-size: 1.1rem;
-    }
+         .message-content {
+            font-size: 1.15rem;
+            line-height: 1.7;
+         }
 
-    .message-content {
-        font-size: 1.1rem;
-    }
+         /* 输入区适配手机 */
+         input, textarea {
+            font-size: 1.1rem;
+            padding: 14px;
+         }
 
-    .button {
-        padding: 14px 20px;
-        font-size: 1.15rem;
-    }
+         .button,
+         .button-share {
+            font-size: 1.15rem;
+            padding: 14px 20px;
+         }
+
+         footer {
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+         }
+
+         /* ==================== */
+         /*    隐藏四周装饰图     */
+         /* ==================== */
+         .decoration,
+         .decoration2,
+         .img-container,
+         .img2-container {
+            display: none !important;
+         }
+
+         /* 如果你想让右下角的q版人物保留但缩小，也可以这样替代↑写法 */
+         /* .img { width: 120px !important; } */
+      }
 
         
