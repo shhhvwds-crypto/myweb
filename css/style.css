@@ -429,55 +429,49 @@
         }
         @media screen and (max-width: 768px) {
 
-    /* 全局改良：让整体往中间稍微集中 */
-    body {
-        padding: 10px;
-        overflow-x: hidden;
-    }
-
-    /* 调整人物图片的大小 */
+    /* 让人物图片更透明、不遮挡内容 */
     .img,
     .img2 {
-        width: 100px !important;
-        opacity: 0.9;
-        z-index: 5;
+        width: 80px !important;       /* 再小一点，避免覆盖内容 */
+        opacity: 0.35 !important;     /* 更透明，不会挡住文字 */
+        z-index: 2 !important;
+        pointer-events: none !important; /* 禁止点击，避免干扰 */
     }
 
-    /* 控制位置避免遮挡 */
     /* 右上角人物 */
     .img:nth-child(2) {
-        top: 5% !important;
+        top: 2% !important;
+        right: -10px !important;
         left: auto !important;
-        right: -5px !important;
     }
 
     /* 右下角人物 */
     .img:nth-child(1) {
-        top: auto !important;
-        bottom: 10% !important;
-        right: -5px !important;
+        bottom: 5% !important;
+        right: -10px !important;
         left: auto !important;
+        top: auto !important;
     }
 
     /* 左下角人物 */
     .img2:nth-child(1) {
+        bottom: 5% !important;
+        left: -10px !important;
         top: auto !important;
-        bottom: 8% !important;
-        left: -5px !important;
     }
 
     /* 左上角人物 */
     .img2:nth-child(2) {
-        top: 10% !important;
-        left: -5px !important;
+        top: 2% !important;
+        left: -10px !important;
     }
 
-    /* 让装饰心形变淡且不遮挡互动内容 */
+    /* 心形也更弱，不影响阅读 */
     .decoration,
     .decoration2 {
-        opacity: 0.4;
-        pointer-events: none;
+        opacity: 0.25 !important;
     }
+}
 
     /* 主内容区域放大 */
     .card-container {
@@ -502,5 +496,5 @@
         padding: 14px 20px;
         font-size: 1.15rem;
     }
-}
+
         
