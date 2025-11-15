@@ -55,58 +55,81 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('sound8')
     ];
 
-
+    // 用于跟踪已加载的参与者
     const existingParticipants = new Set();
 
-
+    // 初始化：实时监听祝福消息
     function initRealtimeMessages() {
-        const messagesQuery = query(
-            collection(db, "messages"),
-            orderBy("timestamp", "desc")
-        );
+        try {
+            // 创建查询，按时间戳降序排列
+            const messagesQuery = query(
+                collection(db, "messages"),
+                orderBy("timestamp", "desc")
+            );
 
-     
-        onSnapshot(messagesQuery, (snapshot) => {
-            console.log("收到实时更新，文档数量:", snapshot.docs.length);
-            
+            console.log("开始监听 Firestore 数据...");
 
-            const existingMessages = messageContainer.querySelectorAll('.message');
-            existingMessages.forEach((message, index) => {
-                if (index > 0) { 
-                    message.remove();
+            // 实时监听数据变化
+            onSnapshot(messagesQuery, (snapshot) => {
+                console.log("收到实时更新，文档数量:", snapshot.docs.length);
+                
+                // 清空现有消息（除了例句）
+                const existingMessages = messageContainer.querySelectorAll('.message');
+                const exampleMessage = existingMessages[0]; // 保存例句
+                
+                // 清空容器
+                messageContainer.innerHTML = '';
+                
+                // 重新添加例句
+                if (exampleMessage) {
+                    messageContainer.appendChild(exampleMessage);
                 }
+
+                // 重置参与者计数
+                participantCountValue = 0;
+                existingParticipants.clear();
+
+                // 添加所有消息
+                snapshot.docs.forEach((doc) => {
+                    const messageData = doc.data();
+                    console.log("加载消息:", messageData);
+                    
+                    // 确保时间戳有效
+                    let timestamp;
+                    if (messageData.timestamp && messageData.timestamp.toDate) {
+                        timestamp = messageData.timestamp.toDate().getTime();
+                    } else {
+                        timestamp = Date.now();
+                    }
+
+                    addMessageToContainer(
+                        messageData.sender || "匿名",
+                        messageData.content || "",
+                        timestamp
+                    );
+
+                    // 更新参与者计数
+                    if (messageData.sender && !existingParticipants.has(messageData.sender)) {
+                        participantCountValue++;
+                        existingParticipants.add(messageData.sender);
+                    }
+                });
+
+                // 更新参与者计数显示
+                participantCount.textContent = participantCountValue;
+
+                // 滚动到底部
+                messageContainer.scrollTop = messageContainer.scrollHeight;
+            }, (error) => {
+                console.error("监听消息错误:", error);
+                alert('连接实时数据失败，请刷新页面重试');
             });
-
-
-            participantCountValue = 0;
-            existingParticipants.clear();
-
-
-            snapshot.docs.forEach((doc) => {
-                const messageData = doc.data();
-                addMessageToContainer(
-                    messageData.sender,
-                    messageData.content,
-                    messageData.timestamp?.toDate().getTime() || Date.now()
-                );
-
-                if (!existingParticipants.has(messageData.sender)) {
-                    participantCountValue++;
-                    existingParticipants.add(messageData.sender);
-                }
-            });
-
-
-            participantCount.textContent = participantCountValue;
-
-
-            messageContainer.scrollTop = messageContainer.scrollHeight;
-        }, (error) => {
-            console.error("监听消息错误:", error);
-        });
+        } catch (error) {
+            console.error("初始化实时监听错误:", error);
+        }
     }
 
-
+    // 发送祝福到 Firebase
     async function sendMessageToFirebase(senderName, messageText) {
         try {
             const docRef = await addDoc(collection(db, "messages"), {
@@ -118,9 +141,21 @@ document.addEventListener('DOMContentLoaded', function() {
             return true;
         } catch (error) {
             console.error("保存消息错误:", error);
-            alert('发送失败，请重试');
+            
+            // 更详细的错误信息
+            if (error.code === 'permission-denied') {
+                alert('发送失败：权限不足。请检查 Firestore 安全规则');
+            } else {
+                alert('发送失败，请重试。错误: ' + error.message);
+            }
             return false;
         }
+    }
+
+    // 修复按钮状态恢复函数
+    function resetButtonState() {
+        sendButton.disabled = false;
+        sendButton.innerHTML = '<span>传递温暖关怀</span><span>❤</span>';
     }
 
     shareButton.addEventListener('click', function() {
@@ -262,25 +297,30 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-
+        // 禁用按钮防止重复提交
         sendButton.disabled = true;
-        sendButton.textContent = '发送中...';
+        sendButton.innerHTML = '<span>发送中...</span>';
 
+        try {
+            // 保存到 Firebase
+            const success = await sendMessageToFirebase(senderName, messageText);
 
-        const success = await sendMessageToFirebase(senderName, messageText);
+            if (success) {
+                // 清空输入框
+                senderNameInput.value = '';
+                messageTextInput.value = '';
 
-        if (success) {
-
-            senderNameInput.value = '';
-            messageTextInput.value = '';
-
-            playRandomEffect();
-            showSuccessMessage();
-            createConfetti();
+                // 播放特效
+                playRandomEffect();
+                showSuccessMessage();
+                createConfetti();
+            }
+        } catch (error) {
+            console.error("发送过程错误:", error);
+        } finally {
+            // 无论成功失败，都恢复按钮状态
+            resetButtonState();
         }
-
-        sendButton.disabled = false;
-        sendButton.innerHTML = '<span>传递温暖关怀</span><span>❤</span>';
     });
 
     function createConfetti() {
@@ -341,18 +381,6 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
             successMsg.remove();
         }, 2500);
-
-        if (!document.querySelector('#fadeOut-style')) {
-            const style = document.createElement('style');
-            style.id = 'fadeOut-style';
-            style.textContent = `
-                @keyframes fadeOut {
-                    from { opacity: 1; }
-                    to { opacity: 0; }
-                }
-            `;
-            document.head.appendChild(style);
-        }
     }
 
     function preloadImages() {
@@ -362,7 +390,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-
+    // 初始化应用
     preloadImages();
-    initRealtimeMessages();
+    initRealtimeMessages(); // 启动实时监听
+    
+    console.log("祝福墙应用初始化完成");
 });
