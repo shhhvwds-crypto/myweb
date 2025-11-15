@@ -427,4 +427,81 @@
                 opacity: 0;
             }
         }
+        @media screen and (max-width: 768px) {
+
+         body {
+            padding: 10px;
+            background-color: #fff5ee;
+         }
+
+         h1 {
+            font-size: 2rem;
+         }
+
+         .subtitle {
+            font-size: 1.2rem;
+         }
+
+         /* 让主体更高更大 */
+         .card-container {
+            padding: 20px;
+            width: 100%;
+            max-width: 100%;
+         }
+
+         .card-title {
+            font-size: 1.3rem;
+         }
+
+         .participant {
+            font-size: 0.9rem;
+            padding: 5px 12px;
+         }
+
+         /* 内容区变大 */
+         .card-content {
+            min-height: 500px;
+            max-height: none;
+            font-size: 1.1rem;
+         }
+
+         .message-head {
+            font-size: 1.1rem;
+         }
+
+         .message-content {
+            font-size: 1.15rem;
+            line-height: 1.7;
+         }
+
+         /* 输入区适配手机 */
+         input, textarea {
+            font-size: 1.1rem;
+            padding: 14px;
+         }
+
+         .button,
+         .button-share {
+            font-size: 1.15rem;
+            padding: 14px 20px;
+         }
+
+         footer {
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+         }
+
+         /* ==================== */
+         /*    隐藏四周装饰图     */
+         /* ==================== */
+         .decoration,
+         .decoration2,
+         .img-container,
+         .img2-container {
+            display: none !important;
+         }
+
+         /* 如果你想让右下角的q版人物保留但缩小，也可以这样替代↑写法 */
+         /* .img { width: 120px !important; } */
+      }
         
