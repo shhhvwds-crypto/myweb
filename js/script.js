@@ -1,24 +1,7 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  onSnapshot,
-  query,
-  orderBy,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
 document.addEventListener('DOMContentLoaded', function() {
-    const firebaseConfig = {
-        apiKey: "AIzaSyBwx6GF3dLUcP39FEF2J9-xsckJL824AC0",
-        authDomain: "myweb-f0b87.firebaseapp.com",
-        projectId: "myweb-f0b87",
-        storageBucket: "myweb-f0b87.firebasestorage.app",
-        messagingSenderId: "825063658040",
-        appId: "1:825063658040:web:1d46a51e902048bdce8ccd",
-        measurementId: "G-7JQSN6ZKFS"
-    };
+    const supabaseUrl = 'https://efznjerhihktwpgvkywo.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVmem5qZXJoaWhrdHdwZ3ZreXdvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyMDMzNjgsImV4cCI6MjA3ODc3OTM2OH0.hdwEM0M5mcKF91ZPJR60z1rP3wbufhfKbKe2puy2WxM'; 
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     const messageContainer = document.getElementById('message-container');
     const senderNameInput = document.getElementById('sender-name');
@@ -26,9 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const sendButton = document.getElementById('send-button')
     const shareButton = document.getElementById('share-button');
     const participantCount = document.getElementById('count');
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
 
     let participantCountValue = 0;
     participantCount.textContent = participantCountValue;
@@ -55,104 +35,150 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('sound8')
     ];
 
-    // 用于跟踪已加载的参与者
+ 
     const existingParticipants = new Set();
 
-    // 初始化：实时监听祝福消息
-    function initRealtimeMessages() {
+   
+    async function initRealtimeMessages() {
         try {
-            // 创建查询，按时间戳降序排列
-            const messagesQuery = query(
-                collection(db, "messages"),
-                orderBy("timestamp", "desc")
-            );
+            console.log("开始监听 Supabase 实时数据...");
 
-            console.log("开始监听 Firestore 数据...");
+            await loadExistingMessages();
 
-            // 实时监听数据变化
-            onSnapshot(messagesQuery, (snapshot) => {
-                console.log("收到实时更新，文档数量:", snapshot.docs.length);
-                
-                // 清空现有消息（除了例句）
-                const existingMessages = messageContainer.querySelectorAll('.message');
-                const exampleMessage = existingMessages[0]; // 保存例句
-                
-                // 清空容器
-                messageContainer.innerHTML = '';
-                
-                // 重新添加例句
-                if (exampleMessage) {
-                    messageContainer.appendChild(exampleMessage);
-                }
 
-                // 重置参与者计数
-                participantCountValue = 0;
-                existingParticipants.clear();
-
-                // 添加所有消息
-                snapshot.docs.forEach((doc) => {
-                    const messageData = doc.data();
-                    console.log("加载消息:", messageData);
-                    
-                    // 确保时间戳有效
-                    let timestamp;
-                    if (messageData.timestamp && messageData.timestamp.toDate) {
-                        timestamp = messageData.timestamp.toDate().getTime();
-                    } else {
-                        timestamp = Date.now();
+            const subscription = supabase
+                .channel('messages')
+                .on('postgres_changes', 
+                    { 
+                        event: 'INSERT', 
+                        schema: 'public', 
+                        table: 'messages' 
+                    }, 
+                    (payload) => {
+                        console.log('收到新消息:', payload);
+                        handleNewMessage(payload.new);
                     }
-
-                    addMessageToContainer(
-                        messageData.sender || "匿名",
-                        messageData.content || "",
-                        timestamp
-                    );
-
-                    // 更新参与者计数
-                    if (messageData.sender && !existingParticipants.has(messageData.sender)) {
-                        participantCountValue++;
-                        existingParticipants.add(messageData.sender);
+                )
+                .on('postgres_changes',
+                    {
+                        event: '*',
+                        schema: 'public',
+                        table: 'messages'
+                    },
+                    () => {
+  
+                        loadExistingMessages();
                     }
-                });
+                )
+                .subscribe();
 
-                // 更新参与者计数显示
-                participantCount.textContent = participantCountValue;
-
-                // 滚动到底部
-                messageContainer.scrollTop = messageContainer.scrollHeight;
-            }, (error) => {
-                console.error("监听消息错误:", error);
-                alert('连接实时数据失败，请刷新页面重试');
-            });
         } catch (error) {
             console.error("初始化实时监听错误:", error);
         }
     }
 
-    // 发送祝福到 Firebase
-    async function sendMessageToFirebase(senderName, messageText) {
+
+    async function loadExistingMessages() {
         try {
-            const docRef = await addDoc(collection(db, "messages"), {
-                sender: senderName,
-                content: messageText,
-                timestamp: serverTimestamp()
+            const { data: messages, error } = await supabase
+                .from('messages')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                throw error;
+            }
+
+            console.log("加载现有消息:", messages);
+
+       
+            const existingMessages = messageContainer.querySelectorAll('.message');
+            const exampleMessage = existingMessages[0];
+            
+      
+            messageContainer.innerHTML = '';
+            
+     
+            if (exampleMessage) {
+                messageContainer.appendChild(exampleMessage);
+            }
+
+ 
+            participantCountValue = 0;
+            existingParticipants.clear();
+
+    
+            messages.forEach((message) => {
+                addMessageToContainer(
+                    message.sender,
+                    message.content,
+                    new Date(message.created_at).getTime()
+                );
+
+        
+                if (message.sender && !existingParticipants.has(message.sender)) {
+                    participantCountValue++;
+                    existingParticipants.add(message.sender);
+                }
             });
-            console.log("消息已保存，ID:", docRef.id);
+
+    
+            participantCount.textContent = participantCountValue;
+
+ 
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+
+        } catch (error) {
+            console.error("加载消息错误:", error);
+        }
+    }
+
+
+    function handleNewMessage(message) {
+        addMessageToContainer(
+            message.sender,
+            message.content,
+            new Date(message.created_at).getTime()
+        );
+
+        if (message.sender && !existingParticipants.has(message.sender)) {
+            participantCountValue++;
+            existingParticipants.add(message.sender);
+            participantCount.textContent = participantCountValue;
+        }
+
+
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+
+
+    async function sendMessageToSupabase(senderName, messageText) {
+        try {
+            const { data, error } = await supabase
+                .from('messages')
+                .insert([
+                    {
+                        sender: senderName,
+                        content: messageText,
+                        created_at: new Date().toISOString()
+                    }
+                ])
+                .select();
+
+            if (error) {
+                throw error;
+            }
+
+            console.log("消息已保存:", data);
             return true;
         } catch (error) {
             console.error("保存消息错误:", error);
-            
-            // 更详细的错误信息
-            if (error.code === 'permission-denied') {
-                alert('发送失败：权限不足。请检查 Firestore 安全规则');
-            } else {
-                alert('发送失败，请重试。错误: ' + error.message);
-            }
+            alert('发送失败，请重试。错误: ' + error.message);
             return false;
         }
     }
 
-    // 修复按钮状态恢复函数
+
     function resetButtonState() {
         sendButton.disabled = false;
         sendButton.innerHTML = '<span>传递温暖关怀</span><span>❤</span>';
@@ -297,20 +323,19 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // 禁用按钮防止重复提交
+
         sendButton.disabled = true;
         sendButton.innerHTML = '<span>发送中...</span>';
 
         try {
-            // 保存到 Firebase
-            const success = await sendMessageToFirebase(senderName, messageText);
+ 
+            const success = await sendMessageToSupabase(senderName, messageText);
 
             if (success) {
-                // 清空输入框
+
                 senderNameInput.value = '';
                 messageTextInput.value = '';
 
-                // 播放特效
                 playRandomEffect();
                 showSuccessMessage();
                 createConfetti();
@@ -318,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error("发送过程错误:", error);
         } finally {
-            // 无论成功失败，都恢复按钮状态
+
             resetButtonState();
         }
     });
@@ -390,9 +415,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 初始化应用
     preloadImages();
-    initRealtimeMessages(); // 启动实时监听
+    initRealtimeMessages(); 
     
-    console.log("祝福墙应用初始化完成");
+    console.log("祝福墙应用初始化完成 - Supabase 版本");
 });
