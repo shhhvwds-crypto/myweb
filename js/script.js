@@ -1,279 +1,383 @@
-document.addEventListener('DOMContentLoaded',function(){
-                const messageContainer = document.getElementById('message-container');
-                const senderNameInput = document.getElementById('sender-name');
-                const messageTextInput = document.getElementById('message-text');
-                const sendButton = document.getElementById('send-button')
-                const shareButton = document.getElementById('share-button');
-                const participantCount = document.getElementById('count');
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-                let participantCountValue = 0;
-                participantCount.textContent = participantCountValue;
+document.addEventListener('DOMContentLoaded', async function () {
 
-                const imagePaths = [
-                    'img2/send.png',
-                    'img2/send2.png',
-                    'img2/send3.png',
-                    'img2/send4.png',
-                    'img2/send5.png',
-                    'img2/send6.png',
-                    'img2/send7.png',
-                    'img2/send8.png',
-                ];
+  const firebaseConfig = {
+  apiKey: "AIzaSyBwx6GF3dLUcP39FEF2J9-xsckJL824AC0",
+  authDomain: "myweb-f0b87.firebaseapp.com",
+  projectId: "myweb-f0b87",
+  storageBucket: "myweb-f0b87.firebasestorage.app",
+  messagingSenderId: "825063658040",
+  appId: "1:825063658040:web:1d46a51e902048bdce8ccd",
+  measurementId: "G-7JQSN6ZKFS"
+};
 
-                const soundEffects = [
-                    document.getElementById('sound1'),
-                    document.getElementById('sound2'),
-                    document.getElementById('sound3'),
-                    document.getElementById('sound4'),
-                    document.getElementById('sound5'),
-                    document.getElementById('sound6'),
-                    document.getElementById('sound7'),
-                    document.getElementById('sound8')
-                ];
-
-                shareButton.addEventListener('click', function() {
-                    copyWebsiteUrl();
-                });
+  let db;
+  try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    console.log('Firebase initialized');
+  } catch (e) {
+    console.error('Firebase init error:', e);
+    db = null;
+  }
 
 
-                function copyWebsiteUrl() {
-                    const websiteUrl = window.location.href;
-                    
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(websiteUrl)
-                            .then(() => {
-                                showShareSuccessMessage();
-                            })
-                            .catch(err => {
-                                console.error('复制失败:', err);
-                                fallbackCopyText(websiteUrl);
-                            });
-                    } else {
-                        fallbackCopyText(websiteUrl);
-                    }
-                }
+  const messageContainer = document.getElementById('message-container');
+  const senderNameInput = document.getElementById('sender-name');
+  const messageTextInput = document.getElementById('message-text');
+  const sendButton = document.getElementById('send-button');
+  const shareButton = document.getElementById('share-button');
+  const participantCount = document.getElementById('count');
 
-                function fallbackCopyText(text) {
-                        const textArea = document.createElement('textarea');
-                        textArea.value = text;
-                        textArea.style.position = 'fixed';
-                        textArea.style.left = '-999999px';
-                        textArea.style.top = '-999999px';
-                        document.body.appendChild(textArea);
-                        textArea.focus();
-                        textArea.select();
-                        
-                        try {
-                            const successful = document.execCommand('copy');
-                            if (successful) {
-                                showShareSuccessMessage();
-                            } else {
-                                alert('复制失败，请手动复制网址：' + text);
-                            }
-                        } catch (err) {
-                            console.error('复制失败:', err);
-                            alert('复制失败，请手动复制网址：' + text);
-                        }
-                        
-                        document.body.removeChild(textArea);
-                    }
-
-                    function showShareSuccessMessage() {
-                        const shareSuccessMsg = document.createElement('div');
-                        shareSuccessMsg.textContent = '已复制网站链接！';
-                        shareSuccessMsg.style.position = 'fixed';
-                        shareSuccessMsg.style.top = '20px';
-                        shareSuccessMsg.style.left = '50%';
-                        shareSuccessMsg.style.transform = 'translateX(-50%)';
-                        shareSuccessMsg.style.backgroundColor = '#ff6b6b';
-                        shareSuccessMsg.style.color = 'white';
-                        shareSuccessMsg.style.padding = '10px 20px';
-                        shareSuccessMsg.style.borderRadius = '20px';
-                        shareSuccessMsg.style.zIndex = '1001';
-                        shareSuccessMsg.style.boxShadow = '0 3px 10px rgba(0,0,0,0.2)';
-                        shareSuccessMsg.style.animation = 'fadeIn 0.5s, fadeOut 0.5s 2s forwards';
-                        shareSuccessMsg.style.fontSize = '14px';
-                        
-                        document.body.appendChild(shareSuccessMsg);
-                        
-                        setTimeout(() => {
-                            if (shareSuccessMsg.parentNode) {
-                                shareSuccessMsg.parentNode.removeChild(shareSuccessMsg);
-                            }
-                        }, 2500);
-                    }
+  const imagePaths = [
+    'img2/send.png',
+    'img2/send2.png',
+    'img2/send3.png',
+    'img2/send4.png',
+    'img2/send5.png',
+    'img2/send6.png',
+    'img2/send7.png',
+    'img2/send8.png',
+  ];
+  const soundEffects = [
+    document.getElementById('sound1'),
+    document.getElementById('sound2'),
+    document.getElementById('sound3'),
+    document.getElementById('sound4'),
+    document.getElementById('sound5'),
+    document.getElementById('sound6'),
+    document.getElementById('sound7'),
+    document.getElementById('sound8')
+  ];
 
 
-                function playRandomEffect() {
-                    const randomImageIndex = Math.floor(Math.random() * imagePaths.length);
-                    const selectedImagePath = imagePaths[randomImageIndex];
-                    
-                    const randomSoundIndex = Math.floor(Math.random() * soundEffects.length);
-                    const selectedSound = soundEffects[randomSoundIndex];
+  const existingParticipants = new Set();
+  participantCount.textContent = existingParticipants.size;
 
-                    const effectImage = document.createElement('img');
-                    effectImage.className = 'effect-image';
-                    effectImage.src = selectedImagePath;
-                    effectImage.alt = '特效图片';
+  function formatFullDateTime(timestamp) {
+    const date = new Date(Number(timestamp));
+    if (isNaN(date.getTime())) return '未知时间';
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${year}年${month}月${day}日 ${hours}:${minutes}`;
+  }
 
-                    document.body.appendChild(effectImage);
+  function addMessageToContainer(sender, content, timestamp) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message';
 
-                    if (selectedSound) {
-                        selectedSound.currentTime = 0; 
-                        selectedSound.play().catch(e => {
-                            console.log('音效播放失败:', e);
-                        });
-                    }
+    const timeString = formatFullDateTime(timestamp);
 
-                    setTimeout(() => {
-                        if (effectImage.parentNode) {
-                            effectImage.parentNode.removeChild(effectImage);
-                        }
-                    }, 3000);
-                }
+    messageDiv.innerHTML = `
+      <div class="message-head">
+        <span class="sender">${escapeHtml(sender)}</span>
+        <span class="timestamp">${timeString}</span>
+      </div>
+      <div class="message-content">${escapeHtml(content)}</div>
+    `;
+    messageContainer.appendChild(messageDiv);
+  }
 
+  function escapeHtml(unsafe) {
+    if (unsafe === null || unsafe === undefined) return '';
+    return String(unsafe)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;')
+      .replaceAll('\n', '<br>');
+  }
 
-                function formatFullDateTime(timestamp){
-                    const date = new Date(timestamp);
-                    const year = date.getFullYear();
-                    const month = (date.getMonth()+1).toString().padStart(2,'0');
-                    const day =date.getDate().toString().padStart(2,'0');
-                    const hours = date.getHours().toString().padStart(2,'0');
-                    const minutes = date.getMinutes().toString().padStart(2,'0');
+  function playRandomEffect() {
+    const randomImageIndex = Math.floor(Math.random() * imagePaths.length);
+    const selectedImagePath = imagePaths[randomImageIndex];
 
-                    return `${year}年${month}月${day}日${hours}:${minutes}`;
-                }
-                
-                function addMessageToContainer(sender,content,timestamp){
-                    const messageDiv = document.createElement('div');
-                    messageDiv.className = 'message';
+    const randomSoundIndex = Math.floor(Math.random() * soundEffects.length);
+    const selectedSound = soundEffects[randomSoundIndex];
 
-                    const timeString = formatFullDateTime(timestamp);
+    const effectImage = document.createElement('img');
+    effectImage.className = 'effect-image';
+    effectImage.src = selectedImagePath;
+    effectImage.alt = '特效图片';
 
-                    messageDiv.innerHTML = `
-                    <div class="message-head">
-                            <span class="sender">${sender}</span>
-                            <span class="timestamp">${timeString}</span>
-                        </div>
-                        <div class="message-content">${content}</div>`;
+    document.body.appendChild(effectImage);
 
-                    messageContainer.appendChild(messageDiv);
-                }
-                sendButton.addEventListener('click',function(){
-                    const senderName = senderNameInput.value.trim();
-                    const messageText = messageTextInput.value.trim();
-
-                    if (!senderName){
-                        alert('请输入你的名字');
-                        return;
-                    }
-                    if (!messageText){
-                        alert('请输入祝福内容');
-                        return;
-                    }
-                    const timestamp = Date.now();
-
-                    addMessageToContainer(senderName,messageText,timestamp);
-
-                    senderNameInput.value = '';
-                    messageTextInput.value = '';
-
-                     if (!isExistingParticipant(senderName)) {
-                        participantCountValue++;
-                        participantCount.textContent = participantCountValue;
-                        existingParticipants.add(senderName); 
-                    }
-
-                    messageContainer.scrollTop = messageContainer.scrollHeight;
-
-                    playRandomEffect();
-
-                    showSuccessMessage();
-                    createConfetti();
-                });
-                 const existingParticipants = new Set();
-    
-                function isExistingParticipant(name){
-                    return existingParticipants.has(name);
-                }
-
-                function createConfetti() {
-   
-                    for (let i = 0; i < 30; i++) {
-                        const confetti = document.createElement('div');
-                        confetti.className = 'confetti'; 
-                        confetti.style.left = Math.random() * 100 + 'vw';
-                        confetti.style.backgroundColor = getRandomColor();
-                        confetti.style.animation = `confettiFall ${Math.random() * 3 + 2}s linear forwards`;
-                        document.body.appendChild(confetti);
-                        
-                        setTimeout(() => {
-                            confetti.remove();
-                        }, 5000);
-                    }
-                    
-                    if (!document.querySelector('#confetti-style')) {
-                        const style = document.createElement('style');
-                        style.id = 'confetti-style'; 
-                        style.textContent = `
-                            @keyframes confettiFall {
-                                0% {
-                                    transform: translateY(-100px) rotate(0deg);
-                                    opacity: 1;
-                                }
-                                100% {
-                                    transform: translateY(100vh) rotate(360deg);
-                                    opacity: 0;
-                                }
-                            }
-                        `;
-                        document.head.appendChild(style);
-                    }
-                }
-            
-                function getRandomColor() {
-                    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#ffa5a5', '#96ceb4', '#feca57'];
-                    return colors[Math.floor(Math.random() * colors.length)];
-                }
-                function showSuccessMessage() {
-                const successMsg = document.createElement('div');
-                successMsg.textContent = '温暖已传递！';
-                successMsg.style.position = 'fixed';
-                successMsg.style.top = '20px';
-                successMsg.style.left = '50%';
-                successMsg.style.transform = 'translateX(-50%)';
-                successMsg.style.backgroundColor = '#4ecdc4';
-                successMsg.style.color = 'white';
-                successMsg.style.padding = '10px 20px';
-                successMsg.style.borderRadius = '20px';
-                successMsg.style.zIndex = '1000';
-                successMsg.style.boxShadow = '0 3px 10px rgba(0,0,0,0.2)';
-                successMsg.style.animation = 'fadeIn 0.5s, fadeOut 0.5s 2s forwards';
-                
-                document.body.appendChild(successMsg);
-                
-                setTimeout(() => {
-                    successMsg.remove();
-                }, 2500);
-                
-
-                if (!document.querySelector('#fadeOut-style')) {
-                    const style = document.createElement('style');
-                    style.id = 'fadeOut-style';
-                    style.textContent = `
-                        @keyframes fadeOut {
-                            from { opacity: 1; }
-                            to { opacity: 0; }
-                        }
-                    `;
-                    document.head.appendChild(style);
-                }
-            }
-            function preloadImages() {
-                    imagePaths.forEach(path => {
-                        const img = new Image();
-                        img.src = path;
-                    });
-                }
-            preloadImages();
+    if (selectedSound) {
+      try {
+        selectedSound.currentTime = 0;
+        selectedSound.play().catch(e => {
+          console.log('音效播放失败:', e);
         });
+      } catch (e) {
+        console.log('playRandomEffect sound error:', e);
+      }
+    }
+
+    setTimeout(() => {
+      if (effectImage.parentNode) effectImage.parentNode.removeChild(effectImage);
+    }, 3000);
+  }
+
+  shareButton.addEventListener('click', function () {
+    copyWebsiteUrl();
+  });
+
+  function copyWebsiteUrl() {
+    const websiteUrl = window.location.href;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(websiteUrl)
+        .then(() => {
+          showShareSuccessMessage();
+        })
+        .catch(err => {
+          console.error('复制失败:', err);
+          fallbackCopyText(websiteUrl);
+        });
+    } else {
+      fallbackCopyText(websiteUrl);
+    }
+  }
+
+  function fallbackCopyText(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        showShareSuccessMessage();
+      } else {
+        alert('复制失败，请手动复制网址：' + text);
+      }
+    } catch (err) {
+      console.error('复制失败:', err);
+      alert('复制失败，请手动复制网址：' + text);
+    }
+
+    document.body.removeChild(textArea);
+  }
+
+  function showShareSuccessMessage() {
+    const shareSuccessMsg = document.createElement('div');
+    shareSuccessMsg.textContent = '已复制网站链接！';
+    shareSuccessMsg.style.position = 'fixed';
+    shareSuccessMsg.style.top = '20px';
+    shareSuccessMsg.style.left = '50%';
+    shareSuccessMsg.style.transform = 'translateX(-50%)';
+    shareSuccessMsg.style.backgroundColor = '#ff6b6b';
+    shareSuccessMsg.style.color = 'white';
+    shareSuccessMsg.style.padding = '10px 20px';
+    shareSuccessMsg.style.borderRadius = '20px';
+    shareSuccessMsg.style.zIndex = '1001';
+    shareSuccessMsg.style.boxShadow = '0 3px 10px rgba(0,0,0,0.2)';
+    shareSuccessMsg.style.animation = 'fadeIn 0.5s, fadeOut 0.5s 2s forwards';
+    shareSuccessMsg.style.fontSize = '14px';
+
+    document.body.appendChild(shareSuccessMsg);
+
+    setTimeout(() => {
+      if (shareSuccessMsg.parentNode) {
+        shareSuccessMsg.parentNode.removeChild(shareSuccessMsg);
+      }
+    }, 2500);
+  }
+
+  function createConfetti() {
+    for (let i = 0; i < 30; i++) {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.left = Math.random() * 100 + 'vw';
+      confetti.style.backgroundColor = getRandomColor();
+      confetti.style.animation = `confettiFall ${Math.random() * 3 + 2}s linear forwards`;
+      document.body.appendChild(confetti);
+
+      setTimeout(() => {
+        confetti.remove();
+      }, 5000);
+    }
+
+    if (!document.querySelector('#confetti-style')) {
+      const style = document.createElement('style');
+      style.id = 'confetti-style';
+      style.textContent = `
+        @keyframes confettiFall {
+          0% {
+            transform: translateY(-100px) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100vh) rotate(360deg);
+            opacity: 0;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+
+  function getRandomColor() {
+    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#ffa5a5', '#96ceb4', '#feca57'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  function showSuccessMessage() {
+    const successMsg = document.createElement('div');
+    successMsg.textContent = '温暖已传递！';
+    successMsg.style.position = 'fixed';
+    successMsg.style.top = '20px';
+    successMsg.style.left = '50%';
+    successMsg.style.transform = 'translateX(-50%)';
+    successMsg.style.backgroundColor = '#4ecdc4';
+    successMsg.style.color = 'white';
+    successMsg.style.padding = '10px 20px';
+    successMsg.style.borderRadius = '20px';
+    successMsg.style.zIndex = '1000';
+    successMsg.style.boxShadow = '0 3px 10px rgba(0,0,0,0.2)';
+    successMsg.style.animation = 'fadeIn 0.5s, fadeOut 0.5s 2s forwards';
+
+    document.body.appendChild(successMsg);
+
+    setTimeout(() => {
+      successMsg.remove();
+    }, 2500);
+
+    if (!document.querySelector('#fadeOut-style')) {
+      const style = document.createElement('style');
+      style.id = 'fadeOut-style';
+      style.textContent = `
+        @keyframes fadeOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+
+
+  function preloadImages() {
+    imagePaths.forEach(path => {
+      const img = new Image();
+      img.src = path;
+    });
+  }
+  preloadImages();
+
+
+  async function handleSend() {
+    const senderName = senderNameInput.value.trim();
+    const messageText = messageTextInput.value.trim();
+
+    if (!senderName) {
+      alert('请输入你的名字');
+      return;
+    }
+    if (!messageText) {
+      alert('请输入祝福内容');
+      return;
+    }
+
+    const timestamp = Date.now();
+
+    senderNameInput.value = '';
+    messageTextInput.value = '';
+
+    if (!db) {
+      alert('数据库未连接，祝福将保存在本地（刷新后会丢失）。');
+      addMessageToContainer(senderName, messageText, timestamp);
+      playRandomEffect();
+      showSuccessMessage();
+      createConfetti();
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "messages"), {
+        sender: senderName,
+        content: messageText,
+        timestamp: timestamp
+      });
+
+      playRandomEffect();
+      showSuccessMessage();
+      createConfetti();
+
+    } catch (err) {
+      console.error('写入数据库失败：', err);
+      alert('发送失败，请稍后再试。');
+      addMessageToContainer(senderName, messageText, timestamp);
+    }
+  }
+
+  sendButton.addEventListener('click', function () {
+    handleSend();
+  });
+
+  messageTextInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  });
+
+  if (db) {
+    try {
+      const q = query(collection(db, "messages"), orderBy('timestamp', 'asc'));
+      onSnapshot(q, (snapshot) => {
+        messageContainer.innerHTML = "";
+
+        const participantsSet = new Set();
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const sender = data.sender || '匿名';
+          const content = data.content || '';
+          const ts = data.timestamp || Date.now();
+          addMessageToContainer(sender, content, ts);
+          participantsSet.add(sender);
+        });
+
+        participantCount.textContent = participantsSet.size;
+
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+      }, (err) => {
+        console.error('onSnapshot error:', err);
+      });
+    } catch (e) {
+      console.error('监听 Firestore 失败：', e);
+    }
+  } else {
+    console.warn('Firestore 未启用，页面将运行本地模式（非实时）。');
+  }
+
+
+  if (!db) {
+  }
+
+
+  try {
+    messageContainer.style.scrollBehavior = 'smooth';
+  } catch (e) { /* ignore */ }
+
+
+});
